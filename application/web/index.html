@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- import Vue before Element -->
+    <link rel="icon" href="/web/statics/favicon.ico">
+    <script src="https://unpkg.com/vue@2.7.14/dist/vue.js"></script>
+    <script>Vue.config.productionTip = false</script>
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-ui@2.15.12/lib/index.js"></script>
+    <script src="https://unpkg.com/axios@1.2.2/dist/axios.min.js"></script>
+    <!-- <script src="/web/js/request.js" type="module"></script> -->
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.15.12/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="/web/css/style.css">
+</head>
+
+<body>
+    <el-container>
+        <!-- this part is navibar,change page through change router's value -->
+        <el-header style="text-align:center; font-size: 18px;">
+            <div id="app">
+                <el-row type="flex" class="row-bg" justify="center">
+                    <el-col :span="2">
+                        <div class="grid-content"><el-button type="text" icon="el-icon-s-home"
+                                @click=changeRouter("首页")>首页</el-button></div>
+                    </el-col>
+                    <el-col :span="2" :offset=13>
+                        <div class="grid-content "><el-button type="text" icon="el-icon-key"
+                                @click=changeRouter("密钥")>密钥</el-button></div>
+                    </el-col>
+                    <!-- <el-col :span="2">
+                        <div class="grid-content "><el-button type="text" icon="el-icon-key"
+                                @click=changeRouter("管理")>管理</el-button></div>
+                    </el-col> -->
+                    <el-col :span="2">
+                        <div class="grid-content"><el-button type="text" icon="el-icon-s-promotion"
+                                @click=changeRouter("发送")>授权</el-button></div>
+                    </el-col>
+                    <el-col :span="2">
+                        <div class="grid-content"><el-button type="text" icon="el-icon-search"
+                                @click=changeRouter("查询")>查询</el-button></div>
+                    </el-col>
+                    <!-- open blockchain browser -->
+                    <el-col :span="2">
+                        <div class="grid-content"><el-button type="text" icon="el-icon-discover"
+                                @click="openBloBro">区块链浏览器</el-button>
+                        </div>
+                    </el-col>
+                </el-row>
+
+        </el-header>
+
+        <el-main v-show="this.router=='首页'">
+            <div class="texthome">
+                <h1 style="height: 100px;color: #409EFF;">基于区块链与IPFS的数据管理系统</h1>
+                <p style="color:#0b0c0c;text-indent:37px ; text-align: left;">本系统使用RSA算法生成密钥对，
+                    用户的数据将存储于IPFS，IPFS返回的CID（IPFS Hash）使用用户的RSA私钥加密后存储于区块链上，
+                    用户可以授予第三方特定数据的CURD操作的权限，实现细粒度的访问控制；
+                    区块链部分使用Hyperledger Fabric,并用Hyperledger Explorer追踪交易</p>
+            </div>
+            <el-row>
+                <!-- <el-col :span="4" :offset=3> -->
+                <div style="width: 1230px;margin: auto;">
+                    <el-col style="width: 270px;">
+                        <el-card :body-style="{ padding: '0px' }" shadow="hover">
+                            <img src="/web/statics/keys.jpeg" class="image">
+                            <div style="padding:14px 14px 0px 14px;">
+                                <div class="cardtext">
+                                    <span>本系统使用RSA算法生成密钥对，RSA是被研究得最广泛的公钥算法，普遍被认为是目前最优秀的公钥方案之一。
+                                        本系统中使用的密钥长度为1024位</span>
+                                </div>
+                                <div class="bottom clearfix"
+                                    style="border-top: #eaeefb;border-top-width: 1px;border-top-style: solid;"
+                                    @click="changeRouter('密钥')">
+                                    <el-button type="text" class="button">生成密钥</el-button>
+                                </div>
+                            </div>
+
+                        </el-card>
+                    </el-col>
+                    <el-col style="width: 320px;padding-left: 50px;">
+                        <el-card :body-style="{ padding: '0px' }" shadow="hover">
+                            <img src="/web/statics/send.jpeg" class="image">
+                            <div style="padding:14px 14px 0px 14px;">
+                                <div class="cardtext">
+                                    <span>使用本系统向第三方授予特定数据的创建、读取、更新、删除操作的权限，通过Fabric的链码实现访问控制和身份验证</span>
+                                </div>
+                                <div class="bottom clearfix"
+                                    style="border-top: #eaeefb;border-top-width: 1px;border-top-style: solid;"
+                                    @click="changeRouter('发送')">
+                                    <el-button type="text" class="button">授予权限</el-button>
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-col>
+                    <el-col style="width: 320px;padding-left: 50px;">
+                        <el-card :body-style="{ padding: '0px' }" shadow="hover">
+                            <img src="/web/statics/search.jpeg" class="image">
+                            <div style="padding:14px 14px 0px 14px;">
+                                <div class="cardtext">
+                                    <span>用户（数据主体）对所有数据拥有所有操作权限，第三方在经过授权后也可对数据进行一定操作。所有数据在经过加密后保存在IPFS网络上，并将加密后的CID永久保存到Fabric网络中</span>
+                                </div>
+                                <div class="bottom clearfix"
+                                    style="border-top: #eaeefb;border-top-width: 1px;border-top-style: solid;"
+                                    @click="changeRouter('查询')">
+                                    <el-button type="text" class="button">数据管理</el-button>
+                                </div>
+                            </div>
+
+                        </el-card>
+                    </el-col>
+                    <el-col style="width: 320px;padding-left: 50px;">
+                        <el-card :body-style="{ padding: '0px' }" shadow="hover">
+                            <img src="/web/statics/blockchain.jpeg" class="image">
+                            <div style="padding:14px 14px 0px 14px;">
+                                <div class="cardtext">
+                                    <span>使用区块链浏览器可以方便地通过Fabric交易id查询交易详情，包含时间戳、背书策略与读写集等。还可以了解到当前区块链的运行情况</span>
+                                </div>
+                                <div class="bottom clearfix"
+                                    style="border-top: #eaeefb;border-top-width: 1px;border-top-style: solid;"
+                                    @click="openBloBro">
+                                    <el-button type="text" class="button">区块链浏览器</el-button>
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </div>
+            </el-row>
+        </el-main>
+        <el-main v-show="this.router=='密钥'">
+            <img src="/web/statics/keys.jpeg" alt="" style="height: 200px;margin: 30px;">
+            <h1 style="color: #232425;margin-bottom: 30px;">RSA密钥对生成</h1>
+            <el-button type="primary" @click="getRSAKey">生成密钥对</el-button>
+            <el-button type="primary" @click="restoreRSApk">恢复公钥</el-button>
+            <el-dialog :visible.sync="rsa.dialogVisible_gen" width="50%" :data="rsa" fullscreen="">
+                <div style="width: 50%;margin: auto;">
+                    <h2 style="color:#F56C6C;">rsa私钥,请勿泄露:</h2>
+                    <span style="font-size:smaller;color:#F56C6C;">{{rsa.sk}}</span>
+                    <h2 style="color:#67C23A;margin-top: 50px;">rsa公钥:</h2>
+                    <span style="font-size: smaller;color: #67C23A;">{{rsa.pk}}</span>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="cleanKey">确 定</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="请填入私钥" :visible.sync="rsa.dialogVisible_restore" width="50%">
+                <el-input type="textarea" :rows="11" placeholder="请输入内容" v-model="rsa.sk">
+                </el-input>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="getRSApk()">恢复公钥</el-button></el-button></el-button>
+                </span>
+            </el-dialog>
+            <el-dialog :visible.sync="rsa.dialogVisible_restore_suc" width="50%">
+                <div style="width: 50%;margin: auto;">
+                    <h2 style="color:#67C23A;margin-top: 50px;">rsa公钥:</h2>
+                    <span style="font-size: smaller;color: #67C23A;">{{rsa.pk}}</span>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary"
+                        @click="rsa.dialogVisible_restore_suc=false">确定</el-button></el-button></el-button>
+                </span>
+            </el-dialog>
+        </el-main>
+        <el-main v-show="this.router=='发送'">
+            <img src="/web/statics/send.jpeg" alt="" height="200px" style="height: 200px;margin: 30px;">
+            <div style="width: 400px; margin: auto;">
+                <el-form :model="send.sendForm" status-icon ref="send.sendForm" label-width="100px"
+                    class="demo-ruleForm" label-position="top" style="text-align: left;" v-loading="loading"
+                    element-loading-text="授权中">
+                    <el-form-item label="第三方公钥" prop="recevierPk">
+                        <el-input v-model="send.sendForm.recevier" type="textarea" :rows="2"
+                            v-model="textarea"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="用户私钥" prop="senderSk">
+                        <el-input v-model="send.sendForm.sender" type="textarea" :rows="2"
+                            v-model="textarea"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="操作权限" prop="activity">
+                        <el-input v-model="send.sendForm.activity" type="textarea" :rows="1"
+                            v-model="textarea"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-upload class="upload-demo" ref="upload" action="#" :limit="1" :on-exceed="handleExceed"
+                            :on-remove="handleRemove" :auto-upload="false">
+                            <el-button slot="trigger" size="small" type="primary"
+                                style="margin-top: 10px;margin-bottom: 10px;">选取文件</el-button>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm('send.sendForm')">提交</el-button>
+                        <el-button @click="resetForm('send.sendForm')">重置</el-button>
+                    </el-form-item>
+                </el-form>
+                <el-dialog :visible.sync="send.sendForm.dialogVisible_txid" width="30%" :data="send.sendForm">
+                    <h2 style="color: #67C23A;">区块链交易ID:</h2>
+                    <span>{{send.sendForm.txid}}</span>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="goDetails">详 情</el-button></el-button>
+                    </span>
+                </el-dialog>
+            </div>
+        </el-main>
+        <el-main v-show="this.router=='查询'">
+            <img src="/web/statics/search.jpeg" alt="" height="200px" style="height: 200px;margin: 30px;">
+            <div style="width: 400px;margin: auto;" v-loading="loading" element-loading-text="查询中">
+                <el-input type="textarea" :rows="2" placeholder="填入你的私钥" v-model="search.sk">
+                </el-input>
+                <el-button type="primary" plain style="margin: 20px;" @click="getRecords(search.sk)">查询</el-button>
+
+            </div>
+            <el-dialog :visible.sync=search.dialogTableVisible :fullscreen=true>
+                <el-table :data="search.records" style="width: 80%;margin: auto;" type="index" v-loading="loading"
+                    element-loading-text="请求中">
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="demo-table-expand">
+                                <el-form-item label="时间:">
+                                    <span style="text-align: left;">{{ props.row.timestamp }}</span>
+                                </el-form-item>
+                                <el-form-item label="发送者:">
+                                    <span>{{ props.row.sender }} {{props.row.sender==search.pk?"（我）":""}} </span>
+                                </el-form-item>
+                                <el-form-item label="接受者:">
+                                    <span>{{ props.row.receiver }}{{props.row.receiver==search.pk?"（我）":""}}</span>
+                                </el-form-item>
+                                <el-form-item label="文件名:">
+                                    <span>{{ props.row.filename }}</span>
+                                </el-form-item>
+                                <el-form-item label="区块链交易ID:">
+                                    <span>{{ props.row.txid }}</span>
+                                </el-form-item>
+                                <el-form-item label="授予权限:">
+                                    <span>{{ props.row.activity }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="序号" type="index">
+                    </el-table-column>
+                    <el-table-column label="时间" prop="timestamp">
+                    </el-table-column>
+                    <el-table-column label="文件名" prop="filename">
+                    </el-table-column>
+                    <el-table-column label="区块链交易ID" prop="txid">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" width="300">
+                        <template slot-scope="scope">
+                            <!-- <el-form :model="createData" label-width="100px"> -->
+                            <!-- <el-form-item>
+                                    <el-upload class="upload-demo" ref="upload1" action="#" :limit="1"
+                                        :on-exceed="handleExceed" :on-remove="handleRemove" :auto-upload="false">
+                                        <el-button slot="trigger" size="small" type="primary"
+                                            style="margin-top: 10px;margin-bottom: 10px;">选取文件</el-button>
+                                    </el-upload>
+                                    <el-upload class="upload-demo" ref="'upload'+scope.$index" action="#" :limit="1"
+                                        :on-exceed="handleExceed" :on-remove="handleRemove" :auto-upload="false"
+                                        list-type="text">
+                                        <el-button
+                                            v-if="scope.row.activity === 'create' || scope.row.activity === 'update'"
+                                            slot="trigger" size="small" type="primary"
+                                            style="margin-top: 10px;line-height: 1;margin-bottom: 10px;">选取文件</el-button>
+                                    </el-upload>
+                                </el-form-item> -->
+                            <!-- <el-form-item> -->
+                            <el-button v-if="scope.row.activity == 'read'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">读取</el-button>
+                            <el-button v-if="scope.row.activity == 'create'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">创建</el-button>
+                            <el-button v-if="scope.row.activity == 'update'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">更新</el-button>
+                            <el-button v-if="scope.row.activity == 'delete'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">删除</el-button>
+                            <el-button v-if="scope.row.sender == search.pk" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">撤销</el-button>
+                            <!-- </el-form-item> -->
+                            <!-- </el-form> -->
+                            <!-- <el-upload class="upload-demo" ref="upload1" action="#" :limit="1" :on-exceed="handleExceed"
+                                :on-remove="handleRemove" :auto-upload="false" list-type="text" @change="handleChange">
+                                <el-button v-if="scope.row.activity === 'create' || scope.row.activity === 'update'"
+                                    slot="trigger" size="small" type="primary"
+                                    style="margin-top: 10px;line-height: 1;margin-bottom: 10px;">选取文件</el-button>
+                            </el-upload> -->
+                            <!-- <el-button v-if="scope.row.activity == 'read'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">读取</el-button>
+                            <el-button v-if="scope.row.activity == 'create'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">创建</el-button>
+                            <el-button v-if="scope.row.activity == 'update'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">更新</el-button>
+                            <el-button v-if="scope.row.activity == 'delete'" @click="searchDownloadlink(scope.row)"
+                                type="text" size="small">删除</el-button> -->
+                            <el-button @click="searchDetails(scope.row)" type="text" size="small">详情</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-upload class="upload-demo" ref="upload1" action="#" :limit="1" :on-exceed="handleExceed"
+                    :on-remove="handleRemove" :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary"
+                        style="margin-top: 10px;margin-bottom: 10px;">选取文件</el-button>
+                </el-upload>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="search.dialogTableVisible = false">确 定</el-button>
+                </span>
+            </el-dialog>
+
+
+        </el-main>
+        </div>
+    </el-container>
+</body>
+<script>
+    const vm = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                // data of home page
+                router: "首页",
+                loading: false,
+                //data of RSAkey page
+                rsa: {
+                    dialogVisible_gen: false,
+                    dialogVisible_restore: false,
+                    dialogVisible_restore_suc: false,
+                    pk: '',
+                    sk: '',
+                },
+                //data of send page
+                send: {
+                    sendForm: {
+                        'sender': '',
+                        'recevier': '',
+                        'file': '',
+                        'activity': '',
+                        dialogVisible_txid: false,
+                        txid: '正在加载...',
+                    },
+                    getfiledata: { 'sk': '', filename: '' },
+
+                },
+                search: {
+                    sk: '',
+                    pk: '',
+                    records: [],
+                    link: '',
+                    dialogTableVisible: false
+                },
+                createData: {
+                    'file': '',
+                    'sk': '',
+                    'ecid': '',
+                },
+                // update: {
+                //     updateForm:{
+                //         'sk': '',
+                //         'file': '',
+                //         'activity':'',
+                //     },
+                // },
+                //public
+                url: 'http://127.0.0.1:9090/',
+                blokchainbrowserurl: 'http://127.0.0.1:8080/'
+            }
+        },
+        computed: {
+            //order records by time
+            sortrecords() {
+                const arr = vm.search.records
+                arr.sort((a, b) => {
+                    return b.timestamp - a.timestamp
+                })
+                return arr
+            }
+        },
+
+
+
+        methods: {
+            changeRouter(router) {
+                vm.router = router
+            },
+
+            //methods of home page
+            openBloBro() {
+                window.open(vm.blokchainbrowserurl)
+            },
+            changeFixed(clientHeight) { //动态修改样式
+                console.log(clientHeight);
+                console.log(window.$refs.page.$el.style.height);
+                window.$refs.page.$el.style.height = clientHeight - 200 + 'px';
+            },
+            //methods of RSAkey page
+            getRSAKey() {
+                // console.log("222")
+                axios.get(vm.url + 'rsakey').then(
+                    function (response) {
+                        vm.rsa.sk = response.data.sk,
+                            vm.rsa.pk = response.data.pk
+                        vm.rsa.dialogVisible_gen = true
+                    }
+                ).catch(
+                    function (response) {
+                        if (response.message == 'Network Error') {
+                            vm.$message.warning("服务器错误")
+                        } else if (response.response.status == 400) {
+                            vm.$message.warning("检查输入的密钥是否正确")
+                        }
+                        vm.loading = false
+                    }
+                )
+            },
+            restoreRSApk() {
+                vm.rsa.sk = '',
+                    vm.rsa.pk = '',
+                    vm.rsa.dialogVisible_restore = true
+            },
+            getRSApk() {
+                vm.rsa.dialogVisible_restore = false
+                axios.post(vm.url + 'rsakeyrestore', { 'sk': vm.rsa.sk }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(function (response) {
+                    vm.rsa.pk = response.data
+                    vm.rsa.dialogVisible_restore_suc = true
+                }).catch(
+                    function (response) {
+                        if (response.message == 'Network Error') {
+                            vm.$message.warning("服务器错误")
+                        } else if (response.response.status == 400) {
+                            vm.$message.warning("检查输入的密钥是否正确")
+                        }
+                        vm.loading = false
+                    }
+                )
+            },
+            cleanKey() {
+                vm.rsa.dialogVisible_gen = false,
+                    vm.rsa.sk = '',
+                    vm.rsa.pk = ''
+            },
+
+            //methods of send page
+            submitForm: function () {
+                vm.loading = true
+                // console.log(vm.send.sendForm.recevier)
+                //remove /r /n
+                vm.send.sendForm.recevier = vm.send.sendForm.recevier.replace(/\r|\n/ig, "")
+                vm.send.sendForm.file = vm.$refs.upload._data.uploadFiles[0].raw
+                console.log(vm.send.sendForm.file)
+                axios.post(vm.url + 'upload', vm.send.sendForm, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(
+                    function (response) {
+                        vm.send.sendForm.txid = response.data.txid
+                        vm.resetForm()
+                        vm.send.sendForm.dialogVisible_txid = true
+                    }
+                ).catch(function (response) {
+                    if (response.message == 'Network Error') {
+                        vm.$message.warning("服务器错误")
+                    } else if (response.response.status == 400) {
+                        vm.$message.warning("检查输入的密钥是否正确")
+                    }
+                    vm.loading = false
+                },
+                    // vm.send.sendForm.dialogVisible_txid = false,
+                    // vm.$message.warning("服务器错误"),
+                );
+            },
+            handleExceed() {
+                this.$message.warning("一次发送只能选择一个文件")
+            },
+            goDetails: function () {
+                window.open(vm.blokchainbrowserurl + "?tab=transactions&transId=" + vm.send.sendForm.txid)
+                vm.resetForm()
+            },
+            resetForm: function () {
+                vm.send.sendForm.sender = '',
+                    vm.send.sendForm.recevier = '',
+                    vm.send.sendForm.activity = '',
+                    vm.send.sendForm.file = '',
+                    vm.$refs.upload._data.uploadFiles = []
+                vm.loading = false
+            },
+            handleRemove(file, fileList) {
+            },
+            handleChange(file, filelist) {
+                console.log(file, filelist)
+            },
+            //search
+            searchDetails(row) {
+                window.open(vm.blokchainbrowserurl + "?tab=transactions&transId=" + row.txid)
+            },
+            searchDownloadlink(row) {
+                vm.loading = true
+                console.log(row.activity)
+                switch (row.activity) {
+                    case "read":
+                        if (vm.search.pk == row.sender) {
+                            console.log(vm.search.sk, row.secid, row.filename)
+                            vm.getFile(vm.search.sk, row.secid, row.filename)
+                        } else {
+                            console.log(vm.search.sk, row.recid, row.filename)
+                            vm.getFile(vm.search.sk, row.recid, row.filename)
+                        }
+                        break;
+                    case "create":
+                        if (vm.search.pk == row.sender) {
+
+                            console.log(vm.$refs.upload1._data.uploadFiles)
+                            vm.createFile(vm.search.sk, row.secid, row.filename)
+                        } else {
+                            console.log(vm.$refs.upload1._data.uploadFiles)
+                            vm.createFile(vm.search.sk, row.recid, row.filename)
+                        }
+                        break;
+                    case "update":
+                        if (vm.search.pk == row.sender) {
+
+                            console.log(vm.$refs.upload1._data.uploadFiles)
+                            vm.createFile(vm.search.sk, row.secid, row.filename)
+                        } else {
+                            console.log(vm.$refs.upload1._data.uploadFiles)
+                            vm.createFile(vm.search.sk, row.recid, row.filename)
+                        }
+                        console.log("update")
+                        break;
+                    case "delete":
+                        console.log("delete")
+                        if (vm.search.pk == row.sender) {
+                            console.log(vm.search.sk, row.secid, row.filename)
+                            vm.deleteFile(vm.search.sk, row.secid, row.filename)
+                        } else {
+                            console.log(vm.search.sk, row.recid, row.filename)
+                            vm.deleteFile(vm.search.sk, row.recid, row.filename)
+                        }
+                        break;
+                    default:
+                        vm.$message.warning("检查是否正确")
+
+                }
+            },
+            getFile(sk, ecid, filename) {
+                // vm.loading=false
+                axios.post(vm.url + 'getfile', { 'sk': sk, 'ecid': ecid, 'filename': filename }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(function (response) {
+                    console.log(response)
+                    window.open(response.data)
+                    vm.loading = false
+                })
+            },
+            createFile(sk, ecid, filename) {
+
+                var file = vm.$refs.upload1._data.uploadFiles[0].raw
+
+                axios.post(vm.url + 'createfile', { 'sk': sk, 'ecid': ecid, 'filename': filename, 'file': file }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(function (response) {
+                    console.log(response)
+                    window.open(response.data)
+                    vm.loading = false
+                })
+
+            },
+            deleteFile(sk, ecid, filename) {
+                axios.post(vm.url + 'deletefile', { 'sk': sk, 'ecid': ecid, 'filename': filename }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(function (response) {
+                    console.log(response)
+                    window.open(response.data)
+                    vm.loading = false
+                })
+            },
+            getRecords(sk) {
+                vm.loading = true
+                axios.post(vm.url + 'getrecords', { 'sk': sk }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(
+                    function (response) {
+                        vm.search.records = response.data
+                        vm.search.dialogTableVisible = true
+                        vm.loading = false
+                    }
+                ).catch(
+                    function (response) {
+                        if (response.message == 'Network Error') {
+                            vm.$message.warning("服务器错误")
+                        } else if (response.response.status == 400) {
+                            vm.$message.warning("检查输入的密钥是否正确")
+                        }
+                        vm.loading = false
+                    }
+                )
+                axios.post(vm.url + 'rsakeyrestore', { 'sk': sk }, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }).then(function (response) {
+                    vm.search.pk = response.data
+                })
+
+            },
+        }
+    })
+
+
+</script>
+<script>
+
+</script>
+
+</html>

@@ -1,0 +1,50 @@
+# Definition of nodes
+peer1: &peer1
+  addr: 172.17.0.1:7051
+  org: org1
+
+peer2: &peer2
+  addr: 172.17.0.1:9051
+  org: org2
+
+orderer1: &orderer1
+  addr: 172.17.0.1:7050
+  org: org1
+
+policyFile: ./test/andLogic.rego
+endorsers:
+  - *peer1
+  - *peer2
+
+# Peer Nodes to interact with as Commit Peers as listening
+committers: 
+  - *peer1
+  - *peer2
+# we might support multi-committer in the future for more complex test scenario.
+# i.e. consider tx committed only if it's done on >50% of nodes. 
+# Give your commit Threshold as numbers for peers here.
+commitThreshold: 1
+
+# orderer Nodes to interact with
+orderer: *orderer1
+
+# Invocation configs
+channel: mychannel
+#chaincode name
+chaincode: datashare
+# chain code args below, in a list of str
+# we provides 3 kinds of randmon
+# uuid
+# randomString$length
+# randomNumber$min_$max
+args:
+  - queryRecord
+  - uuid
+
+# Tx submiter information
+mspid: Org1MSP
+private_key: ../crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/f6efd64c86039bab3d1ee90d9151b4a8429c6736368401785958e3e3552839dd_sk
+sign_cert: ../crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+# network traffic control
+num_of_conn: 10
+client_per_conn: 10

@@ -1,0 +1,7 @@
+
+MG{
+  "server": {   
+    "baseDir": ["./src", "./build/contracts"]
+  }
+}
+G
